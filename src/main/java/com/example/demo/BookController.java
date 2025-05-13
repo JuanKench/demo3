@@ -1,11 +1,14 @@
 package com.example.demo;
 
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.context.annotation.Bean;
+import org.springframework.data.jpa.repository.Modifying;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,7 +45,7 @@ public class BookController {
     }
 
     @RequestMapping("/bok/{author}")
-    public List<Book> findBookbyId(@PathVariable String author) {
+    public List<Book> findBookbyAuthor(@PathVariable String author) {
         return bookRepository.findByAuthor(author);
     }
 
@@ -50,5 +53,44 @@ public class BookController {
     public List<Book> deleteBookById(@PathVariable long id) {
         bookRepository.deleteById(id);
         return bookRepository.findAll();
+    }
+
+    @RequestMapping("/bok/deleteall")
+    public ResponseEntity<String> deleteAllBooks(){
+        bookRepository.deleteAll();
+        return ResponseEntity.ok("books have been terminated");
+    }
+
+    @Bean           // it's MR
+    public CommandLineRunner demo3(BookRepository bookRepository){
+        return (args) ->{
+            bookRepository.save(new Book("Sagan om Bagaren", "Tolkein"));
+            bookRepository.save(new Book("fasdfas", "sdfacv"));
+        };
+    }
+
+    @RequestMapping("/bok/getAuthors")
+    public List<String> getAuthors(){
+        return bookRepository.getAllAuthors();
+    }
+
+    @RequestMapping("/bok/updateAuthorName")
+    public void updateAutorName(){
+        bookRepository.updateAuthorName("Tolkein", "Johan");
+    }
+
+    @RequestMapping("/bok/updateAuthorName2")
+    public void updateAuthorName2(){
+        bookRepository.updateAuthorName2("Johan", "Tolkein");
+    }
+
+    @RequestMapping("bok/getStats")
+    public List<StatUtilDTO> getStats(){
+        return bookRepository.getAuthorsStats();
+    }
+
+    @RequestMapping("/bok/Alfa")
+    public List<String> getAllAuthorsAlphabetically(){
+        return bookRepository.findAllAuthorsAlphabetically();
     }
 }
